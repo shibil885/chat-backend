@@ -1,6 +1,7 @@
 import express from "express";
 import dotenv from "dotenv";
 import connectMongoDB from "./config/db.config";
+import userRouter from "./routers/user/user.router";
 
 dotenv.config();
 
