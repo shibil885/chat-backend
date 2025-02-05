@@ -1,21 +1,22 @@
 import express from "express";
 import dotenv from "dotenv";
 import connectMongoDB from "./config/db.config";
-import userRouter from "./routers/user/user.router";
-
+import authRouter from "./routers/auth/auth.router";
+import otpRouter from "./routers/otp/otp.router";
+import { ErrorHandler } from "./middlewares/error/errorHandler.middleware";
 dotenv.config();
 
 const app = express();
 const port = process.env.PORT || 3000;
 const db = connectMongoDB;
 db();
-// router
 
+// routers
+app.use("/auth", authRouter);
+app.use("/otp", otpRouter);
 
+app.use(ErrorHandler)
 
-
-
-// error app.use()
 app.listen(port, (err) => {
   if (err) {
     console.log("Something went wrong with the server");

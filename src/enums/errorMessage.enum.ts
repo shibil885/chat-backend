@@ -20,6 +20,7 @@ export enum ErrorMessage {
   OTP_CREATION_FAILED = "OTP creation failed",
   OTP_VERIFICATION_FAILED = "Invalid OTP, verification failed",
   OTP_EXPIRED = "OTP expired, please request a new one",
+  OTP_RESEND_FAILED = "Email not found, resend failed",
   PASSWORD_RESET_FAILED = "Failed to reset password",
 
   // User Errors

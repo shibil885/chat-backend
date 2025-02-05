@@ -36,4 +36,24 @@ export default class OtpController {
       return next(error);
     }
   }
+
+  async resend(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { email } = req.body;
+      if (!email) {
+        const errorMessage = ApiResponse.errorResponse(
+          ErrorMessage.OTP_RESEND_FAILED,
+          null,
+          HttpStatusCode.BAD_REQUEST
+        );
+        throw new Error(JSON.stringify(errorMessage));
+      } else {
+
+        // TODO
+
+      }
+    } catch (error) {
+      return next(error);
+    }
+  }
 }
