@@ -15,4 +15,10 @@ export default class OtpRepository {
       throw new Error(ErrorMessage.OTP_CREATION_FAILED);
     }
   }
+
+  async submit(email: string, otp: number) {
+    return await OtpModel.findOne({ email: email, otp: otp }).sort({
+      createdAt: -1,
+    });
+  }
 }

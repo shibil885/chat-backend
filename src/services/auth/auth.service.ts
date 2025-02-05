@@ -6,7 +6,6 @@ import { TokenGenerator } from "../../util/tokenGenerator.util";
 import ApiResponse from "../../util/response.util";
 import OtpRepository from "../../repositories/otp/otp.repository";
 import { mailsendFn } from "../../util/mailSender.util";
-import { SuccessMessage } from "../../enums/successMessage.enum";
 
 export default class AuthService {
   private _userRepository: UserRepository;
