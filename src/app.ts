@@ -9,6 +9,13 @@ const app = express();
 const port = process.env.PORT || 3000;
 const db = connectMongoDB;
 db();
+// router
+
+
+
+
+
+// error app.use()
 app.listen(port, (err) => {
   if (err) {
     console.log("Something went wrong with the server");

@@ -1,6 +1,6 @@
 import { Types } from "mongoose";
 
-export interface IUser  {
+export interface IUser {
   _id: string;
   username: string;
   email: string;
@@ -9,6 +9,7 @@ export interface IUser  {
   isOnline: boolean;
   lastSeen: Date;
   socketId: string | null;
+  isVerified: boolean;
   friends: Types.ObjectId[];
   createdAt: Date;
   updatedAt: Date;

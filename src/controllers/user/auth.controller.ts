@@ -1,6 +1,5 @@
 import { NextFunction, Request, Response } from "express";
 import AuthService from "../../services/auth/auth.service";
-import { z } from "zod";
 import ApiResponse from "../../util/response.util";
 import HttpStatusCode from "../../enums/httpStatus.enum";
 import { ErrorMessage } from "../../enums/errorMessage.enum";
@@ -35,6 +34,46 @@ export default class AuthController {
             HttpStatusCode.OK,
             { access_token, refresh_token }
           );
+          return res.status(HttpStatusCode.OK).json(response);
+        }
+      }
+    } catch (error) {
+      return next(error);
+    }
+  }
+
+  async registration(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { email, password, username } = req.body;
+      if (!email || !password || !username) {
+        const response = ApiResponse.errorResponse(
+          ErrorMessage.ACCOUNT_CREATION_FAILED,
+          null,
+          HttpStatusCode.BAD_REQUEST
+        );
+        throw new Error(JSON.stringify(response));
+      } else {
+        const userCreated = await this._authService.registration(
+          username,
+          email,
+          password
+        );
+
+        if (userCreated) {
+          const response = ApiResponse.successResponse(
+            SuccessMessage.OTP_RESENT,
+            null,
+            HttpStatusCode.CREATED
+          );
+
+          return res.status(HttpStatusCode.CREATED).json(response);
+        } else {
+          let errorResponse = ApiResponse.errorResponse(
+            ErrorMessage.ACCOUNT_CREATION_FAILED,
+            null,
+            HttpStatusCode.INTERNAL_SERVER_ERROR
+          );
+          throw new Error(JSON.stringify(errorResponse));
         }
       }
     } catch (error) {

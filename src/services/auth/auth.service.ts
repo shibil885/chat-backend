@@ -4,12 +4,17 @@ import UserRepository from "../../repositories/user/user.repository";
 import bcryptjs from "bcryptjs";
 import { TokenGenerator } from "../../util/tokenGenerator.util";
 import ApiResponse from "../../util/response.util";
+import OtpRepository from "../../repositories/otp/otp.repository";
+import { mailsendFn } from "../../util/mailSender.util";
+import { SuccessMessage } from "../../enums/successMessage.enum";
 
 export default class AuthService {
   private _userRepository: UserRepository;
+  private _otpRepository: OtpRepository;
   private _jwtTokenGenerator: TokenGenerator;
   constructor() {
     this._userRepository = new UserRepository();
+    this._otpRepository = new OtpRepository();
     this._jwtTokenGenerator = new TokenGenerator();
   }
 
@@ -29,10 +34,12 @@ export default class AuthService {
           isExisting.password
         );
         if (!isPasswordMatch) {
-          return {
-            message: ErrorMessage.LOGIN_FAILED,
-            code: HttpStatusCode.BAD_REQUEST,
-          };
+          const response = ApiResponse.errorResponse(
+            ErrorMessage.LOGIN_FAILED,
+            null,
+            HttpStatusCode.BAD_REQUEST
+          );
+          throw new Error(JSON.stringify(response));
         } else {
           const access_token = this._jwtTokenGenerator.generateAccessToken({
             _id: isExisting._id,
@@ -54,5 +61,45 @@ export default class AuthService {
     }
   }
 
-  registration() {}
+  async registration(username: string, email: string, password: string) {
+    try {
+      const isExisting = await this._userRepository.findOne(email);
+      if (isExisting && isExisting.isVerfied) {
+        const response = ApiResponse.errorResponse(
+          ErrorMessage.EMAIL_EXIST,
+          null,
+          HttpStatusCode.CONFLICT
+        );
+        throw new Error(JSON.stringify(response));
+      } else if (isExisting && !isExisting.isVerfied) {
+        const { otp } = await this._otpRepository.create(isExisting.email);
+        await mailsendFn(
+          isExisting.email,
+          'Verification email from "HALA-chat"',
+          otp
+        );
+        return true;
+      } else {
+        const hashedPassword = await bcryptjs.hash(password, 3);
+        if (hashedPassword) {
+          const newUser = await this._userRepository.registerUser(
+            email,
+            hashedPassword,
+            username
+          );
+          if (newUser) {
+            const { otp } = await this._otpRepository.create(email);
+            await mailsendFn(
+              email,
+              'Verification email from "HALA-chat',
+              otp
+            );
+            return true;
+          }
+        }
+      }
+    } catch (error) {
+      throw error;
+    }
+  }
 }

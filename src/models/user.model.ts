@@ -37,10 +37,16 @@ const userSchema = new mongoose.Schema(
       type: String,
       default: null,
     },
+
+    isVerfied: {
+      type: Boolean,
+      default: false,
+    },
     friends: [
       {
         type: mongoose.Schema.Types.ObjectId,
         ref: "User",
+        default: [],
       },
     ],
   },
