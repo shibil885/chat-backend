@@ -18,9 +18,8 @@ export default class OtpService {
   async otpSubmit(email: string, otp: string) {
     const isMatched = await this._otpRepository.submit(email, +otp);
     if (isMatched) {
-      const userData = await this._userRepository.findOne(email);
+      const userData = await this._userRepository.userVerified(email);
       if (userData) {
-
         const access_token = this._tokenGenerator.generateAccessToken({
           email: userData.email,
           _id: userData._id,
@@ -35,7 +34,7 @@ export default class OtpService {
           access_token,
           refresh_token,
         };
-        
+
       } else {
         const errorResponse = ApiResponse.errorResponse(
           ErrorMessage.USER_NOT_FOUND,

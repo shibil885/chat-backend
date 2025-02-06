@@ -30,6 +30,17 @@ export default class OtpController {
           HttpStatusCode.OK,
           { access_token, refresh_token }
         );
+        res.cookie("access_token", access_token, {
+          httpOnly: true,
+          secure: true,
+          sameSite: "strict",
+        });
+
+        res.cookie("refresh_token", refresh_token, {
+          httpOnly: true,
+          secure: true,
+          sameSite: "strict",
+        });
         return res.status(HttpStatusCode.OK).json(response);
       }
     } catch (error) {
@@ -48,9 +59,7 @@ export default class OtpController {
         );
         throw new Error(JSON.stringify(errorMessage));
       } else {
-
         // TODO
-
       }
     } catch (error) {
       return next(error);

@@ -4,7 +4,7 @@ import OtpController from "../../controllers/otp/otp.controller";
 const router = express.Router();
 const otpController = new OtpController();
 
-router.post("/submit", (req: Request, res: Response, next: NextFunction) => {
+router.patch("/submit", (req: Request, res: Response, next: NextFunction) => {
   otpController.submit(req, res, next);
 });
 

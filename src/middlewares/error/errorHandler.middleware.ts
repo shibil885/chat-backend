@@ -1,14 +1,21 @@
 import { NextFunction, Request, Response } from "express";
+import HttpStatusCode from "../../enums/httpStatus.enum";
 
 export const ErrorHandler = (
-  error: Error | string,
+  error: Error,
   req: Request,
   res: Response,
   next: NextFunction
 ) => {
-  if (typeof error === "string") {
-    console.log("error before parse", error);
-    JSON.parse(error);
+  let errorResponse = error;
+  let status = HttpStatusCode.INTERNAL_SERVER_ERROR;
+  console.error("---E---", error.stack);
+
+  if (typeof error !== "string") {
+    errorResponse = JSON.parse(error.message);
+    status = JSON.parse(error.message).code;
   }
-  console.log("error after parse", error);
+  console.error(errorResponse);
+  res.status(status).json(errorResponse);
+
 };

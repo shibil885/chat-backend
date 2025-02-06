@@ -23,14 +23,23 @@ export default class AuthController {
         );
         throw new Error(JSON.stringify(response));
       } else {
-        const { access_token, refresh_token } = await this._authService.login(
-          email,
-          password
-        );
+        const { access_token, refresh_token, user } =
+          await this._authService.login(email, password);
         if (access_token && refresh_token) {
+          res.cookie("access_token", access_token, {
+            httpOnly: true,
+            secure: true,
+            sameSite: "strict",
+          });
+
+          res.cookie("refresh_token", refresh_token, {
+            httpOnly: true,
+            secure: true,
+            sameSite: "strict",
+          });
           const response = ApiResponse.successResponse<IUser>(
             SuccessMessage.ACCOUNT_VERIFIED,
-            undefined,
+            user,
             HttpStatusCode.OK,
             { access_token, refresh_token }
           );
@@ -45,6 +54,8 @@ export default class AuthController {
   async registration(req: Request, res: Response, next: NextFunction) {
     try {
       const { email, password, username } = req.body;
+      console.log(req.body);
+
       if (!email || !password || !username) {
         const response = ApiResponse.errorResponse(
           ErrorMessage.ACCOUNT_CREATION_FAILED,
@@ -53,16 +64,17 @@ export default class AuthController {
         );
         throw new Error(JSON.stringify(response));
       } else {
-        const userCreated = await this._authService.registration(
+        const user = await this._authService.registration(
           username,
           email,
           password
         );
-
-        if (userCreated) {
-          const response = ApiResponse.successResponse(
-            SuccessMessage.OTP_RESENT,
-            null,
+        console.log(user);
+        
+        if (user) {
+          const response = ApiResponse.successResponse<IUser>(
+            SuccessMessage.OTP_SENT,
+            user,
             HttpStatusCode.CREATED
           );
 

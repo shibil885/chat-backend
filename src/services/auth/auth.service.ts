@@ -52,6 +52,7 @@ export default class AuthService {
           return {
             access_token,
             refresh_token,
+            user: isExisting,
           };
         }
       }
@@ -63,21 +64,21 @@ export default class AuthService {
   async registration(username: string, email: string, password: string) {
     try {
       const isExisting = await this._userRepository.findOne(email);
-      if (isExisting && isExisting.isVerfied) {
+      if (isExisting && isExisting.isVerified) {
         const response = ApiResponse.errorResponse(
           ErrorMessage.EMAIL_EXIST,
           null,
           HttpStatusCode.CONFLICT
         );
         throw new Error(JSON.stringify(response));
-      } else if (isExisting && !isExisting.isVerfied) {
+      } else if (isExisting && !isExisting.isVerified) {
         const { otp } = await this._otpRepository.create(isExisting.email);
         await mailsendFn(
           isExisting.email,
           'Verification email from "HALA-chat"',
           otp
         );
-        return true;
+        return isExisting;
       } else {
         const hashedPassword = await bcryptjs.hash(password, 3);
         if (hashedPassword) {
@@ -88,12 +89,8 @@ export default class AuthService {
           );
           if (newUser) {
             const { otp } = await this._otpRepository.create(email);
-            await mailsendFn(
-              email,
-              'Verification email from "HALA-chat',
-              otp
-            );
-            return true;
+            await mailsendFn(email, 'Verification email from "HALA-chat', otp);
+            return newUser;
           }
         }
       }

@@ -7,7 +7,7 @@ export enum SuccessMessage {
     CHAT_CLEARED = 'Chat cleared successfully',
     CONNECTION_ESTABLISHED = 'Connected to the server',
     CONNECTION_RESTORED = 'Connection restored',
-  
+    NEW_USERS = 'New users to chat',
     // Authentication & Authorization
     ACCOUNT_CREATED = 'Account created successfully ',
     LOGIN_SUCCESS = 'Login successful',

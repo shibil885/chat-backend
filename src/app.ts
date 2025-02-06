@@ -3,19 +3,33 @@ import dotenv from "dotenv";
 import connectMongoDB from "./config/db.config";
 import authRouter from "./routers/auth/auth.router";
 import otpRouter from "./routers/otp/otp.router";
+import chatRouter from './routers/chat/chat.router';
 import { ErrorHandler } from "./middlewares/error/errorHandler.middleware";
-dotenv.config();
+import cors from "cors";
+import { authMiddleware } from "./middlewares/auth/auth.middleware";
+import cookieParser from "cookie-parser";
 
+dotenv.config();
 const app = express();
 const port = process.env.PORT || 3000;
 const db = connectMongoDB;
 db();
 
+app.use(cookieParser());
+app.use(
+  cors({
+    origin: process.env.FRONTEND_URL,
+    credentials: true,
+  })
+);
+app.use(express.urlencoded({extended: true}))
+app.use(express.json())
 // routers
 app.use("/auth", authRouter);
 app.use("/otp", otpRouter);
+app.use("/chat", authMiddleware,chatRouter);
 
-app.use(ErrorHandler)
+app.use(ErrorHandler);
 
 app.listen(port, (err) => {
   if (err) {
