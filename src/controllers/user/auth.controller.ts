@@ -54,7 +54,6 @@ export default class AuthController {
   async registration(req: Request, res: Response, next: NextFunction) {
     try {
       const { email, password, username } = req.body;
-      console.log(req.body);
 
       if (!email || !password || !username) {
         const response = ApiResponse.errorResponse(
@@ -69,7 +68,6 @@ export default class AuthController {
           email,
           password
         );
-        console.log(user);
         
         if (user) {
           const response = ApiResponse.successResponse<IUser>(

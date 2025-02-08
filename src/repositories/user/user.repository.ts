@@ -24,6 +24,10 @@ export default class UserRepository {
   }
 
   async newUsers(userId: Types.ObjectId) {
-    return UserModel.find({ isVerified: true, _id: { $ne: userId } });
+    return await UserModel.find({ isVerified: true, _id: { $ne: userId } });
+  }
+
+  async findById(userId: Types.ObjectId) {
+    return await UserModel.findById(userId);
   }
 }

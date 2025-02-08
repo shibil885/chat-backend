@@ -3,7 +3,6 @@ import * as jwt from "jsonwebtoken";
 
 export class TokenGenerator {
   generateAccessToken(payload: IPayload): string {
-    console.log(process.env.SECRET_KEY);
     
     return jwt.sign(payload, process.env.SECRET_KEY as string, {
       expiresIn: "15m",

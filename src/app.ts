@@ -4,6 +4,7 @@ import connectMongoDB from "./config/db.config";
 import authRouter from "./routers/auth/auth.router";
 import otpRouter from "./routers/otp/otp.router";
 import chatRouter from './routers/chat/chat.router';
+import messageRouter from './routers/messages/message.router';
 import { ErrorHandler } from "./middlewares/error/errorHandler.middleware";
 import cors from "cors";
 import { authMiddleware } from "./middlewares/auth/auth.middleware";
@@ -28,6 +29,7 @@ app.use(express.json())
 app.use("/auth", authRouter);
 app.use("/otp", otpRouter);
 app.use("/chat", authMiddleware,chatRouter);
+app.use("/message", authMiddleware,messageRouter);
 
 app.use(ErrorHandler);
 

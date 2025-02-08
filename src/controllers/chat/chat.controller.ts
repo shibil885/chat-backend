@@ -6,6 +6,8 @@ import { SuccessMessage } from "../../enums/successMessage.enum";
 import HttpStatusCode from "../../enums/httpStatus.enum";
 import { AuthRequest } from "../../interfaces/decodedJwt.interface";
 import { ErrorMessage } from "../../enums/errorMessage.enum";
+import { Types } from "mongoose";
+import IChat from "../../interfaces/chat/chat.interface";
 
 export default class ChatController {
   private _chatService: ChatService;
@@ -34,6 +36,55 @@ export default class ChatController {
         HttpStatusCode.OK
       );
       return res.status(HttpStatusCode.OK).json(response);
+    } catch (error) {
+      return next(error);
+    }
+  }
+
+  async getAllChats(req: AuthRequest, res: Response, next: NextFunction) {
+    try {
+      const chats = await this._chatService.getAllChats(
+        new Types.ObjectId(req.user?._id)
+      );
+      const response = ApiResponse.successResponse<IChat[]>(
+        SuccessMessage.ALL_CHAT_FETCHED,
+        chats,
+        HttpStatusCode.OK
+      );
+      return res.status(HttpStatusCode.OK).json(response);
+    } catch (error) {
+      return next(error);
+    }
+  }
+
+  async createOrGetOneOnOneChat(
+    req: AuthRequest,
+    res: Response,
+    next: NextFunction
+  ) {
+    try {
+      const { receiverId } = req.params;            
+      const createdOrFetchedChat =
+        await this._chatService.getOrCreateAOneOnOneChat(
+          new Types.ObjectId(req.user?._id),
+          new Types.ObjectId(receiverId)
+        );
+
+      if (createdOrFetchedChat) {
+        const response = ApiResponse.successResponse<IChat>(
+          SuccessMessage.CHAT_CREATED,
+          createdOrFetchedChat,
+          HttpStatusCode.OK
+        );
+        return res.status(HttpStatusCode.OK).json(response);
+      } else {
+        const errorResponse = ApiResponse.errorResponse(
+          ErrorMessage.INTERNAL_SERVER_ERROR,
+          null,
+          HttpStatusCode.INTERNAL_SERVER_ERROR
+        );
+        throw new Error(JSON.stringify(errorResponse));
+      }
     } catch (error) {
       return next(error);
     }
