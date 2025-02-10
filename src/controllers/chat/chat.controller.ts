@@ -63,7 +63,7 @@ export default class ChatController {
     next: NextFunction
   ) {
     try {
-      const { receiverId } = req.params;            
+      const { receiverId } = req.params;
       const createdOrFetchedChat =
         await this._chatService.getOrCreateAOneOnOneChat(
           new Types.ObjectId(req.user?._id),
@@ -84,6 +84,54 @@ export default class ChatController {
           HttpStatusCode.INTERNAL_SERVER_ERROR
         );
         throw new Error(JSON.stringify(errorResponse));
+      }
+    } catch (error) {
+      return next(error);
+    }
+  }
+
+  async getAGroupChat(req: AuthRequest, res: Response, next: NextFunction) {
+    try {
+      const { chatId } = req.params;
+      const groupChat = await this._chatService.getAGroupChat(
+        new Types.ObjectId(chatId),
+        new Types.ObjectId(req.user?._id)
+      );
+      if (groupChat) {
+        return res
+          .status(HttpStatusCode.OK)  
+          .json(
+            ApiResponse.successResponse<IChat>(
+              SuccessMessage.FETCHED_MESSAGES,
+              groupChat,
+              HttpStatusCode.OK
+            )
+          );
+      }
+    } catch (error) {
+      return next(error);
+    }
+  }
+
+  async createNewGroup(req: AuthRequest, res: Response, next: NextFunction) {
+    try {
+      const { name, participants } = req.body;
+      const currentUser = req.user?._id;
+      const newGroup = await this._chatService.createNewGroupChat(
+        name,
+        participants,
+        new Types.ObjectId(currentUser)
+      );
+      if (newGroup) {
+        return res
+          .status(HttpStatusCode.CREATED)
+          .json(
+            ApiResponse.successResponse(
+              SuccessMessage.CHAT_CREATED,
+              null,
+              HttpStatusCode.CREATED
+            )
+          );
       }
     } catch (error) {
       return next(error);

@@ -4,9 +4,11 @@ export enum ErrorMessage {
   MESSAGE_DELETE_FAILED = "Failed to delete message",
   MESSAGE_EDIT_FAILED = "Failed to edit message",
   CHAT_NOT_FOUND = "Chat not found",
+  FAILED_UPLOADS = "Failed to upload files",
   CONNECTION_LOST = "Connection lost, please reconnect",
   SERVER_ERROR = "Server error, please try again later",
-
+  GROUP_CREATION_FAILD = "Group creation failed",
+  INVALID_FILE_TYPE = "Invalid file type",
   // Authentication & Authorization Errors
   ACCOUNT_CREATION_FAILED = "Account creation failed",
   LOGIN_FAILED = "Invalid credentials, login failed",

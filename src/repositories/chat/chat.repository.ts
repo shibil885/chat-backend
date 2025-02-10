@@ -1,8 +1,10 @@
-import mongoose, { Types } from "mongoose";
+import { Types } from "mongoose";
 import ChatModel from "../../models/chat.model";
 import IChat from "../../interfaces/chat/chat.interface";
+import { IUser } from "../../interfaces/user/user.inerface";
 export default class ChatRepository {
-  
+  constructor() {}
+
   async getAllChat(userId: Types.ObjectId) {
     const chats = await ChatModel.aggregate([
       {
@@ -26,7 +28,7 @@ export default class ChatRepository {
         },
       },
       {
-        $addFields: { loggedinuser: userId },
+        $addFields: { loggeduser: userId },
       },
       {
         $lookup: {
@@ -90,6 +92,9 @@ export default class ChatRepository {
         },
       },
       {
+        $addFields: { loggeduser: userId },
+      },
+      {
         $lookup: {
           from: "users",
           foreignField: "_id",
@@ -135,8 +140,74 @@ export default class ChatRepository {
           ],
         },
       },
+      {
+        $addFields: { loggeduser: userId },
+      },
     ]);
     return createdChat[0];
+  }
+
+  async getAGroupChat(chatId: Types.ObjectId, userId: Types.ObjectId) {
+    return await ChatModel.aggregate([
+      {
+        $match: { _id: chatId },
+      },
+      {
+        $lookup: {
+          from: "users",
+          foreignField: "_id",
+          localField: "participants",
+          as: "participants",
+          pipeline: [
+            {
+              $project: {
+                password: 0,
+              },
+            },
+          ],
+        },
+      },
+      {
+        $addFields: { loggeduser: userId },
+      },
+      {
+        $lookup: {
+          from: "chatmessages",
+          foreignField: "_id",
+          localField: "lastMessage",
+          as: "lastMessage",
+          pipeline: [
+            {
+              $lookup: {
+                from: "users",
+                foreignField: "_id",
+                localField: "sender",
+                as: "sender",
+                pipeline: [
+                  {
+                    $project: {
+                      username: 1,
+                      avatar: 1,
+                      email: 1,
+                    },
+                  },
+                ],
+              },
+            },
+            {
+              $addFields: {
+                sender: { $first: "$sender" },
+              },
+            },
+          ],
+        },
+      },
+      {
+        $sort: {
+          updatedAt: -1,
+        },
+      },
+    ]);
   }
 
   async findById(chatId: Types.ObjectId) {
@@ -149,5 +220,19 @@ export default class ChatRepository {
       { lastMessage: messageId }
     );
     return updateResult;
+  }
+
+  async createGroupChat(
+    name: string,
+    participants: IUser[],
+    userId: Types.ObjectId
+  ) {
+    let newGroupChat = await new ChatModel({
+      admin: userId,
+      isGroupChat: true,
+      participants: [...participants, userId],
+      name: name,
+    }).save();
+    return newGroupChat;
   }
 }

@@ -16,9 +16,9 @@ export default class MessageController {
   async addNewMessage(req: AuthRequest, res: Response, next: NextFunction) {
     try {
       const { chatId } = req.params;
-      const { content } = req.body;
+      const { content, fileType } = req.body;
 
-      if (!chatId && content) {
+      if (!chatId && content && req.file) {
         throw new Error(
           JSON.stringify(
             ApiResponse.errorResponse(
@@ -32,7 +32,10 @@ export default class MessageController {
       const addMessageResult = await this._messageService.addMessage(
         new Types.ObjectId(req.user?._id),
         new Types.ObjectId(chatId),
-        content
+        content,
+        req.file,
+        req.file?.mimetype,
+        fileType
       );
       if (addMessageResult) {
         return res

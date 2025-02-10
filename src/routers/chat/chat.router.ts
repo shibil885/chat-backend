@@ -19,4 +19,18 @@ router.post(
   }
 );
 
+router.post(
+  "/creategroupchat",
+  (req: Request, res: Response, next: NextFunction) => {
+    chatController.createNewGroup(req, res, next);
+  }
+);
+
+router.get(
+  "/getgroupchat/:chatId",
+  (req: Request, res: Response, next: NextFunction) => {
+    chatController.getAGroupChat(req, res, next);
+  }
+);
+
 export default router;

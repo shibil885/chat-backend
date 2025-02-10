@@ -5,12 +5,16 @@ export default class MessageRepository {
   async addMessage(
     senderId: Types.ObjectId,
     chatId: Types.ObjectId,
-    content: string
+    content: string,
+    url: string,
+    name: string,
+    selectedFileType: string
   ) {
     const newMessage = MessageModel.create({
       sender: senderId,
       content: content || "",
       chat: chatId,
+      attachments: { url: url, fileName: name, fileType: selectedFileType },
     });
     return newMessage;
   }
@@ -21,11 +25,33 @@ export default class MessageRepository {
         $match: { chat: chatId },
       },
       {
-        $sort: { createdAt: 1 },
+        $lookup: {
+          from: "users",
+          foreignField: "_id",
+          localField: "sender",
+          as: "sender",
+          pipeline: [
+            {
+              $project: {
+                username: 1,
+                avatar: 1,
+                email: 1,
+              },
+            },
+          ],
+        },
       },
       {
-        $addFields: {'loggeduser': userId}
-      }
+        $addFields: {
+          sender: { $first: "$sender" },
+        },
+      },
+      {
+        $addFields: { loggeduser: userId },
+      },
+      {
+        $sort: { createdAt: 1 },
+      },
     ]);
     return messages;
   }

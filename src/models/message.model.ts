@@ -10,13 +10,12 @@ const chatMessageSchema = new Schema(
       type: String,
     },
     attachments: {
-      type: [
-        {
-          url: String,
-          localPath: String,
-        },
-      ],
-      default: [],
+      type: {
+        fileName: String,
+        url: String,
+        fileType: String,
+      },
+      default: { name: "", url: "", fileType: "" },
     },
     chat: {
       type: Schema.Types.ObjectId,
