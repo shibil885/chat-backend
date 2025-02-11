@@ -68,10 +68,11 @@ export default class MessageService {
         selectedFileType
       );
 
-      return await this._chatRepository.updateLastMessage(
-        chatId,
-        newMessage._id
-      );
+      await this._chatRepository.updateLastMessage(chatId, newMessage._id);
+      return {
+        messages: newMessage,
+        participants: isExisting.participants,
+      };
     } catch (error) {
       console.error("Error in addMessage:", error);
       throw error;

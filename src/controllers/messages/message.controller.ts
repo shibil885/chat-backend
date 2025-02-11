@@ -6,6 +6,9 @@ import ApiResponse from "../../util/response.util";
 import { ErrorMessage } from "../../enums/errorMessage.enum";
 import HttpStatusCode from "../../enums/httpStatus.enum";
 import { SuccessMessage } from "../../enums/successMessage.enum";
+import SocketService from "../../services/socket/socket.service";
+import { ChatEventEnum } from "../../enums/socketEvent.enum";
+import { IUser } from "../../interfaces/user/user.inerface";
 
 export default class MessageController {
   private _messageService: MessageService;
@@ -29,7 +32,7 @@ export default class MessageController {
           )
         );
       }
-      const addMessageResult = await this._messageService.addMessage(
+      const { messages, participants } = await this._messageService.addMessage(
         new Types.ObjectId(req.user?._id),
         new Types.ObjectId(chatId),
         content,
@@ -37,13 +40,24 @@ export default class MessageController {
         req.file?.mimetype,
         fileType
       );
-      if (addMessageResult) {
+      console.log('mmessage', messages);
+      
+      if (messages && req.user?._id) {
+        participants.forEach((participant) => {
+          if (participant._id.toString() == req.user?._id.toString()) return;
+          SocketService.emitSocketEvent(
+            req,
+            participant._id.toString(),
+            ChatEventEnum.MESSAGE_RECEIVED_EVENT,
+            messages,
+          );
+        });
         return res
           .status(HttpStatusCode.CREATED)
           .json(
             ApiResponse.successResponse(
               SuccessMessage.MESSAGE_SENT,
-              addMessageResult,
+              messages,
               HttpStatusCode.CREATED
             )
           );

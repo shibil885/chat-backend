@@ -5,6 +5,7 @@ import ApiResponse from "../../util/response.util";
 import { ErrorMessage } from "../../enums/errorMessage.enum";
 import HttpStatusCode from "../../enums/httpStatus.enum";
 import { IUser } from "../../interfaces/user/user.inerface";
+import IChat from "../../interfaces/chat/chat.interface";
 
 export default class ChatService {
   private _chatRepository: ChatRepository;
@@ -38,7 +39,10 @@ export default class ChatService {
   async getOrCreateAOneOnOneChat(
     userId: Types.ObjectId,
     receiverId: Types.ObjectId
-  ) {
+  ): Promise<{
+    chat: IChat;
+    newChat: Boolean;
+  }> {
     try {
       const isRecieverExist = await this._userRepository.findById(receiverId);
       if (!isRecieverExist) {

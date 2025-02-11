@@ -74,7 +74,7 @@ export default class ChatRepository {
   async createOrGetAOneOnOneChat(
     userId: Types.ObjectId,
     receiverId: Types.ObjectId
-  ): Promise<IChat> {
+  ): Promise<{ chat: IChat; newChat: Boolean }> {
     const chat: IChat[] = await ChatModel.aggregate([
       {
         $match: {
@@ -112,7 +112,7 @@ export default class ChatRepository {
     ]);
 
     if (chat.length) {
-      return chat[0];
+      return { chat: chat[0], newChat: false };
     }
     const newChatInstance = await ChatModel.create({
       name: "One on one chat",
@@ -144,7 +144,7 @@ export default class ChatRepository {
         $addFields: { loggeduser: userId },
       },
     ]);
-    return createdChat[0];
+    return { chat: createdChat[0], newChat: true };
   }
 
   async getAGroupChat(chatId: Types.ObjectId, userId: Types.ObjectId) {

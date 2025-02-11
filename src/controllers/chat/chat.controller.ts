@@ -8,6 +8,8 @@ import { AuthRequest } from "../../interfaces/decodedJwt.interface";
 import { ErrorMessage } from "../../enums/errorMessage.enum";
 import { Types } from "mongoose";
 import IChat from "../../interfaces/chat/chat.interface";
+import SocketService from "../../services/socket/socket.service";
+import { ChatEventEnum } from "../../enums/socketEvent.enum";
 
 export default class ChatController {
   private _chatService: ChatService;
@@ -64,16 +66,27 @@ export default class ChatController {
   ) {
     try {
       const { receiverId } = req.params;
-      const createdOrFetchedChat =
+      const { chat, newChat } =
         await this._chatService.getOrCreateAOneOnOneChat(
           new Types.ObjectId(req.user?._id),
           new Types.ObjectId(receiverId)
         );
-
-      if (createdOrFetchedChat) {
+      const userId = req.user?._id.toString();
+      if (chat) {
+        if (newChat && userId) {
+          chat.participants.forEach((participant) => {
+            if (participant._id == req.user?._id) return;
+            SocketService.emitSocketEvent(
+              req,
+              userId,
+              ChatEventEnum.NEW_CHAT_EVENT,
+              chat
+            );
+          });
+        }
         const response = ApiResponse.successResponse<IChat>(
           SuccessMessage.CHAT_CREATED,
-          createdOrFetchedChat,
+          chat,
           HttpStatusCode.OK
         );
         return res.status(HttpStatusCode.OK).json(response);
@@ -99,7 +112,7 @@ export default class ChatController {
       );
       if (groupChat) {
         return res
-          .status(HttpStatusCode.OK)  
+          .status(HttpStatusCode.OK)
           .json(
             ApiResponse.successResponse<IChat>(
               SuccessMessage.FETCHED_MESSAGES,
