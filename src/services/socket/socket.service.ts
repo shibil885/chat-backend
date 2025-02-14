@@ -14,28 +14,18 @@ export default class SocketService {
 
   mountJoinChatEvent(socket: Socket) {
     socket.on(ChatEventEnum.JOIN_CHAT_EVENT, (chatId: string) => {
-      console.log(`User joined the chat 🤝. chatId: `, chatId);
-      // joining the room with the chatId will allow specific events to be fired where we don't bother about the users like typing events
-      // E.g. When user types we don't want to emit that event to specific participant.
-      // We want to just emit that to the chat where the typing is happening
+      console.log(socket.id,`User joined the chat 🤝. chatId: `, chatId);
       socket.join(chatId);
     });
   }
 
-  /**
-   * @description This function is responsible to emit the typing event to the other participants of the chat
-   * @param {Socket} socket
-   */
   mountParticipantTypingEvent(socket: Socket) {
-    socket.on(ChatEventEnum.TYPING_EVENT, (chatId: string) => {
-      socket.in(chatId).emit(ChatEventEnum.TYPING_EVENT, chatId);
+    socket.on(ChatEventEnum.TYPING_EVENT, (chatId) => {
+      console.log("invoked", chatId);
+      socket.in(chatId).emit(ChatEventEnum.TYPING_EVENT, { chatId });
     });
   }
 
-  /**
-   * @description This function is responsible to emit the stopped typing event to the other participants of the chat
-   * @param {Socket} socket
-   */
   mountParticipantStoppedTypingEvent(socket: Socket) {
     socket.on(ChatEventEnum.STOP_TYPING_EVENT, (chatId: string) => {
       socket.in(chatId).emit(ChatEventEnum.STOP_TYPING_EVENT, chatId);
@@ -54,13 +44,11 @@ export default class SocketService {
         let token = cookies?.access_token;
 
         if (!token) {
-          // If there is no access token in cookies, check the handshake auth
           token = socket.handshake.auth?.token;
           console.log("Token from handshake auth:", token);
         }
 
         if (!token) {
-          // Token is required for the socket to work
           throw new Error(
             JSON.stringify(
               ApiResponse.errorResponse(
@@ -108,11 +96,9 @@ export default class SocketService {
         socket.join(user._id.toString());
         console.log(`User joined room: ${user._id.toString()}`);
 
-        // Emit the connected event
         socket.emit(ChatEventEnum.CONNECTED_EVENT);
         console.log("Emitted CONNECTED_EVENT to user:", user._id.toString());
 
-        // Mount event listeners
         socketService.mountJoinChatEvent(socket);
         socketService.mountParticipantTypingEvent(socket);
         socketService.mountParticipantStoppedTypingEvent(socket);

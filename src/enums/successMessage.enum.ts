@@ -11,6 +11,7 @@ export enum SuccessMessage {
   CONNECTION_ESTABLISHED = "Connected to the server",
   CONNECTION_RESTORED = "Connection restored",
   NEW_USERS = "New users to chat",
+  USERS_LIST = 'Users to chat',
   // Authentication & Authorization
   ACCOUNT_CREATED = "Account created successfully ",
   LOGIN_SUCCESS = "Login successful",

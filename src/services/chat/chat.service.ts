@@ -105,4 +105,39 @@ export default class ChatService {
     );
     return newGroup;
   }
+
+  async getNonParticipants(chatId: string) {
+    try {
+      return this._chatRepository.getNonParticipants(
+        new Types.ObjectId(chatId)
+      );
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async addUsersToChat(chatId: string, userIds: string[]) {
+    if (!userIds || userIds.length === 0) {
+      throw new Error(
+        JSON.stringify(
+          ApiResponse.errorResponse(
+            "No users provided!",
+            null,
+            HttpStatusCode.NOT_FOUND
+          )
+        )
+      );
+    }
+    return await this._chatRepository.addUsersToChat(
+      new Types.ObjectId(chatId),
+      userIds.map((user) => new Types.ObjectId(user))
+    );
+  }
+
+  async leaveChat(chatId: string, userId: string) {
+    return await this._chatRepository.leaveChat(
+      new Types.ObjectId(chatId),
+      new Types.ObjectId(userId)
+    );
+  }
 }

@@ -2,6 +2,9 @@ import { Types } from "mongoose";
 import ChatModel from "../../models/chat.model";
 import IChat from "../../interfaces/chat/chat.interface";
 import { IUser } from "../../interfaces/user/user.inerface";
+import UserModel from "../../models/user.model";
+import ApiResponse from "../../util/response.util";
+import HttpStatusCode from "../../enums/httpStatus.enum";
 export default class ChatRepository {
   constructor() {}
 
@@ -234,5 +237,62 @@ export default class ChatRepository {
       name: name,
     }).save();
     return newGroupChat;
+  }
+
+  async getNonParticipants(chatId: Types.ObjectId) {
+    try {
+      const chat = await ChatModel.findById(chatId).populate(
+        "participants",
+        "_id"
+      );
+      if (!chat) return [];
+
+      const participantIds = chat.participants.map((user) => user._id);
+
+      const nonParticipants = await UserModel.find({
+        _id: { $nin: participantIds },
+      }).select("_id username email");
+      return nonParticipants;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async addUsersToChat(chatId: Types.ObjectId, userIds: Types.ObjectId[]) {
+    return await ChatModel.findByIdAndUpdate(
+      chatId,
+      { $addToSet: { participants: { $each: userIds } } },
+      { new: true }
+    ).populate("participants", "username email");
+  }
+
+  async leaveChat(chatId: Types.ObjectId, userId: Types.ObjectId) {
+    const chat = await ChatModel.findById(chatId);
+    if (!chat)
+      throw new Error(
+        JSON.stringify(
+          ApiResponse.errorResponse(
+            "Chat not found",
+            null,
+            HttpStatusCode.NOT_FOUND
+          )
+        )
+      );
+
+    chat.participants = chat.participants.filter(
+      (participant) => participant.toString() !== userId.toString()
+    );
+
+    if (chat.admin === userId) {
+      if (chat.participants.length > 0) {
+        chat.admin = chat.participants[0];
+      } else {
+        await ChatModel.findByIdAndDelete(chatId);
+        return true;
+      }
+    }
+
+    await chat.save();
+    return chat;
   }
 }

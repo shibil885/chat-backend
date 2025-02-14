@@ -33,4 +33,25 @@ router.get(
   }
 );
 
+router.get(
+  "/:chatId/non-participants",
+  (req: Request, res: Response, next: NextFunction) => {
+    chatController.getNonParticipants(req, res, next);
+  }
+);
+
+router.post(
+  "/:chatId/add-users",
+  (req: Request, res: Response, next: NextFunction) => {
+    chatController.addUsersToChat(req, res, next);
+  }
+);
+
+router.patch(
+  "/leave-chat/:chatId",
+  (req: Request, res: Response, next: NextFunction) => {
+    chatController.leaveChat(req, res, next);
+  }
+);
+
 export default router;

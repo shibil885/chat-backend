@@ -135,7 +135,16 @@ export default class ChatController {
         participants,
         new Types.ObjectId(currentUser)
       );
-      if (newGroup) {
+      if (newGroup && req.user?._id) {
+        participants.forEach((participant: IUser) => {
+          if (participant._id.toString() == req.user?._id.toString()) return;
+          SocketService.emitSocketEvent(
+            req,
+            participant._id.toString(),
+            ChatEventEnum.NEW_GROUP_CREATED,
+            newGroup
+          );
+        });
         return res
           .status(HttpStatusCode.CREATED)
           .json(
@@ -146,6 +155,80 @@ export default class ChatController {
             )
           );
       }
+    } catch (error) {
+      return next(error);
+    }
+  }
+
+  async getNonParticipants(
+    req: AuthRequest,
+    res: Response,
+    next: NextFunction
+  ) {
+    try {
+      const { chatId } = req.params;
+      const users = await this._chatService.getNonParticipants(chatId);
+      return res
+        .status(HttpStatusCode.OK)
+        .json(
+          ApiResponse.successResponse(
+            SuccessMessage.USERS_LIST,
+            users,
+            HttpStatusCode.OK
+          )
+        );
+    } catch (error) {
+      return next(error);
+    }
+  }
+
+  async addUsersToChat(req: AuthRequest, res: Response, next: NextFunction) {
+    try {
+      const { chatId } = req.params;
+      const { userIds } = req.body;
+
+      const updatedChat = await this._chatService.addUsersToChat(
+        chatId,
+        userIds
+      );
+      userIds.forEach((id: string) => {
+        SocketService.emitSocketEvent(
+          req,
+          id,
+          ChatEventEnum.NEW_GROUP_CREATED,
+          updatedChat
+        );
+      });
+      return res
+        .status(HttpStatusCode.OK)
+        .json(
+          ApiResponse.successResponse(
+            "Users added successfully!",
+            updatedChat,
+            HttpStatusCode.OK
+          )
+        );
+    } catch (error: any) {
+      return next(error);
+    }
+  }
+
+  async leaveChat(req: AuthRequest, res: Response, next: NextFunction) {
+    try {
+      const { chatId } = req.params;
+      const userId = req.body.userId;
+
+      const result = await this._chatService.leaveChat(chatId, userId);
+
+      res
+        .status(HttpStatusCode.OK)
+        .json(
+          ApiResponse.successResponse(
+            "Left chat successfully",
+            result,
+            HttpStatusCode.OK
+          )
+        );
     } catch (error) {
       return next(error);
     }

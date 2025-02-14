@@ -18,7 +18,9 @@ export enum ChatEventEnum {
   // ? when participant stops typing
   STOP_TYPING_EVENT = "stopTyping",
   // ? when participant starts typing
-  TYPING_EVENT = "typing",
+  TYPING_EVENT = 'typing',
   // ? when message is deleted
   MESSAGE_DELETE_EVENT = "messageDeleted",
+  // ? when new group is create
+  NEW_GROUP_CREATED = "newGroupCreated",
 }
