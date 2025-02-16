@@ -66,6 +66,28 @@ export default class ChatRepository {
         },
       },
       {
+        $lookup: {
+          from: "chatmessages",
+          foreignField: "chat",
+          localField: "_id",
+          as: "unreadMessages",
+          pipeline: [
+            { $match: { sender: { $ne: userId }, isRead: false } },
+            {
+              $project: {
+                attachments: 0,
+                chat: 0,
+                content: 0,
+                isRead: 0,
+                createdAt: 0,
+                updatedAt: 0,
+                sender: 0,
+              },
+            },
+          ],
+        },
+      },
+      {
         $sort: {
           updatedAt: -1,
         },

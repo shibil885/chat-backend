@@ -4,6 +4,7 @@ import multer from "multer";
 const router = express.Router();
 const messageController = new MessageController();
 const upload = multer({ storage: multer.memoryStorage() });
+
 router.post(
   "/addmessage/:chatId",
   multer().single("attachment"),
@@ -16,6 +17,13 @@ router.get(
   "/messages/:chatId",
   (req: Request, res: Response, next: NextFunction) => {
     messageController.getAllMessages(req, res, next);
+  }
+);
+
+router.patch(
+  "/readallmessages/:chatId",
+  (req: Request, res: Response, next: NextFunction) => {
+    messageController.readAllMessages(req, res, next);
   }
 );
 

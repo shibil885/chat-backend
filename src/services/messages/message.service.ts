@@ -97,4 +97,22 @@ export default class MessageService {
     );
     return messages.length ? messages : [];
   }
+
+  async readAllMessages(userId: Types.ObjectId, chatId: Types.ObjectId) {
+    const isChatExist = await this._chatRepository.findById(chatId);
+
+    if (!isChatExist) {
+      throw new Error(
+        JSON.stringify(
+          ApiResponse.errorResponse(
+            ErrorMessage.CHAT_NOT_FOUND,
+            null,
+            HttpStatusCode.NOT_FOUND
+          )
+        )
+      );
+    }
+    await this._messageRepository.readAllMessages(chatId, userId);
+    return isChatExist;
+  }
 }

@@ -7,6 +7,7 @@ export default interface IChat {
   lastMessage?: string;
   participants: Types.ObjectId[];
   admin?: Types.ObjectId;
+  unreadMessages?: Types.ObjectId[];
   createdAt: Date;
   updatedAt: Date;
 }

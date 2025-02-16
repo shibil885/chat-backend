@@ -55,4 +55,11 @@ export default class MessageRepository {
     ]);
     return messages;
   }
+
+  async readAllMessages(chatId: Types.ObjectId, userId: Types.ObjectId) {
+    return await MessageModel.updateMany(
+      { chat: chatId, sender: { $ne: userId } },
+      { isRead: true }
+    );
+  }
 }

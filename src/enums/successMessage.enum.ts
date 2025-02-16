@@ -4,6 +4,7 @@ export enum SuccessMessage {
   MESSAGE_DELETED = "Message deleted successfully",
   MESSAGE_EDITED = "Message edited successfully",
   FETCHED_MESSAGES = "All messaged fetched",
+  ALL_MESSAGE_READ = 'All message read',
   //
   CHAT_CREATED = "Chat created or fetched successfully",
   CHAT_CLEARED = "Chat cleared successfully",

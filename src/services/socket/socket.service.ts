@@ -21,7 +21,6 @@ export default class SocketService {
 
   mountParticipantTypingEvent(socket: Socket) {
     socket.on(ChatEventEnum.TYPING_EVENT, (chatId) => {
-      console.log("invoked", chatId);
       socket.in(chatId).emit(ChatEventEnum.TYPING_EVENT, { chatId });
     });
   }

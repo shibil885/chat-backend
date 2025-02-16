@@ -77,7 +77,6 @@ export default async function s3BucketFileUploader(
   try {
     await s3client.send(new PutObjectCommand(params));
     const fileUrl = `https://${S3_BUCKET_NAME}.s3.${AWS_REGION}.amazonaws.com/${fileName}`;
-    console.log("File uploaded successfully:", fileUrl);
     return fileUrl;
   } catch (error) {
     console.error("Upload Error:", error);

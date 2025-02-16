@@ -1,4 +1,4 @@
-import { NextFunction, Response } from "express";
+import { NextFunction, Request, Response } from "express";
 import { AuthRequest } from "../../interfaces/decodedJwt.interface";
 import MessageService from "../../services/messages/message.service";
 import { Types } from "mongoose";
@@ -8,7 +8,6 @@ import HttpStatusCode from "../../enums/httpStatus.enum";
 import { SuccessMessage } from "../../enums/successMessage.enum";
 import SocketService from "../../services/socket/socket.service";
 import { ChatEventEnum } from "../../enums/socketEvent.enum";
-import { IUser } from "../../interfaces/user/user.inerface";
 
 export default class MessageController {
   private _messageService: MessageService;
@@ -40,8 +39,7 @@ export default class MessageController {
         req.file?.mimetype,
         fileType
       );
-      console.log('mmessage', messages);
-      
+
       if (messages && req.user?._id) {
         participants.forEach((participant) => {
           if (participant._id.toString() == req.user?._id.toString()) return;
@@ -49,7 +47,7 @@ export default class MessageController {
             req,
             participant._id.toString(),
             ChatEventEnum.MESSAGE_RECEIVED_EVENT,
-            messages,
+            messages
           );
         });
         return res
@@ -103,6 +101,39 @@ export default class MessageController {
             HttpStatusCode.OK
           )
         );
+    } catch (error) {
+      return next(error);
+    }
+  }
+
+  async readAllMessages(req: AuthRequest, res: Response, next: NextFunction) {
+    try {
+      const { chatId } = req.params;
+      const isReadAllMessage = await this._messageService.readAllMessages(
+        new Types.ObjectId(req.user?._id),
+        new Types.ObjectId(chatId)
+      );
+      if (isReadAllMessage && req.user?._id) {
+        isReadAllMessage.participants.forEach((participant) => {
+          if (participant._id.toString() === req.user?._id.toString()) return;
+
+          SocketService.emitSocketEvent(
+            req,
+            participant._id.toString(),
+            ChatEventEnum.READ_ALL_MESSAGES,
+            isReadAllMessage
+          );
+        });
+        return res
+          .status(HttpStatusCode.OK)
+          .json(
+            ApiResponse.successResponse(
+              SuccessMessage.ALL_MESSAGE_READ,
+              isReadAllMessage,
+              HttpStatusCode.OK
+            )
+          );
+      }
     } catch (error) {
       return next(error);
     }
