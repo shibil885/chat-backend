@@ -1,8 +1,10 @@
 import express, { NextFunction, Request, Response } from "express";
-import ChatController from "../../controllers/chat/chat.controller";
+import { ChatController } from "../../controllers/chat/chat.controller";
+import ChatService from "../../services/chat/chat.service";
 
 const router = express.Router();
-const chatController = new ChatController();
+const chatService = new ChatService();
+const chatController = new ChatController(chatService);
 
 router.get("/newUsers", (req: Request, res: Response, next: NextFunction) => {
   chatController.newUsers(req, res, next);

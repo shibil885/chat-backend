@@ -5,7 +5,8 @@ import { IUser } from "../../interfaces/user/user.inerface";
 import UserModel from "../../models/user.model";
 import ApiResponse from "../../util/response.util";
 import HttpStatusCode from "../../enums/httpStatus.enum";
-export default class ChatRepository {
+import { IChatRepository } from "../../interfaces/chat/chatRepository.interface";
+export default class ChatRepository implements IChatRepository {
   constructor() {}
 
   async getAllChat(userId: Types.ObjectId) {
@@ -99,7 +100,7 @@ export default class ChatRepository {
   async createOrGetAOneOnOneChat(
     userId: Types.ObjectId,
     receiverId: Types.ObjectId
-  ): Promise<{ chat: IChat; newChat: Boolean }> {
+  ): Promise<{ chat: IChat; newChat: boolean }> {
     const chat: IChat[] = await ChatModel.aggregate([
       {
         $match: {
@@ -172,7 +173,10 @@ export default class ChatRepository {
     return { chat: createdChat[0], newChat: true };
   }
 
-  async getAGroupChat(chatId: Types.ObjectId, userId: Types.ObjectId) {
+  async getAGroupChat(
+    chatId: Types.ObjectId,
+    userId: Types.ObjectId
+  ): Promise<IChat[]> {
     return await ChatModel.aggregate([
       {
         $match: { _id: chatId },
@@ -235,7 +239,7 @@ export default class ChatRepository {
     ]);
   }
 
-  async findById(chatId: Types.ObjectId) {
+  async findById(chatId: Types.ObjectId): Promise<IChat | null> {
     return await ChatModel.findById(chatId);
   }
 
@@ -244,7 +248,7 @@ export default class ChatRepository {
       { _id: chatId },
       { lastMessage: messageId }
     );
-    return updateResult;
+    return updateResult as IChat;
   }
 
   async createGroupChat(
@@ -258,7 +262,7 @@ export default class ChatRepository {
       participants: [...participants, userId],
       name: name,
     }).save();
-    return newGroupChat;
+    return newGroupChat as IChat;
   }
 
   async getNonParticipants(chatId: Types.ObjectId) {
@@ -280,12 +284,15 @@ export default class ChatRepository {
     }
   }
 
-  async addUsersToChat(chatId: Types.ObjectId, userIds: Types.ObjectId[]) {
-    return await ChatModel.findByIdAndUpdate(
+  async addUsersToChat(
+    chatId: Types.ObjectId,
+    userIds: Types.ObjectId[]
+  ): Promise<IChat | null> {
+    return (await ChatModel.findByIdAndUpdate(
       chatId,
       { $addToSet: { participants: { $each: userIds } } },
       { new: true }
-    ).populate("participants", "username email");
+    ).populate("participants", "username email")) as IChat;
   }
 
   async leaveChat(chatId: Types.ObjectId, userId: Types.ObjectId) {
@@ -315,6 +322,6 @@ export default class ChatRepository {
     }
 
     await chat.save();
-    return chat;
+    return chat as IChat;
   }
 }

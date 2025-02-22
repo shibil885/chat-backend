@@ -11,11 +11,8 @@ import IChat from "../../interfaces/chat/chat.interface";
 import SocketService from "../../services/socket/socket.service";
 import { ChatEventEnum } from "../../enums/socketEvent.enum";
 
-export default class ChatController {
-  private _chatService: ChatService;
-  constructor() {
-    this._chatService = new ChatService();
-  }
+export class ChatController {
+  constructor(private _chatService: ChatService) {}
 
   async newUsers(req: AuthRequest, res: Response, next: NextFunction) {
     try {
