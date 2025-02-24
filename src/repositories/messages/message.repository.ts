@@ -1,7 +1,9 @@
-import { Types } from "mongoose";
+import { Types, UpdateWriteOpResult } from "mongoose";
 import MessageModel from "../../models/message.model";
+import { IMessageRepository } from "../../interfaces/messages/messageRepository.interface";
+import { IMessage } from "../../interfaces/messages/message.interface";
 
-export default class MessageRepository {
+export default class MessageRepository implements IMessageRepository {
   async addMessage(
     senderId: Types.ObjectId,
     chatId: Types.ObjectId,
@@ -10,13 +12,13 @@ export default class MessageRepository {
     name: string,
     selectedFileType: string
   ) {
-    const newMessage = MessageModel.create({
+    const newMessage = await MessageModel.create({
       sender: senderId,
       content: content || "",
       chat: chatId,
       attachments: { url: url, fileName: name, fileType: selectedFileType },
     });
-    return newMessage;
+    return newMessage.toObject() as IMessage;
   }
 
   async getAllMessages(chatId: Types.ObjectId, userId?: Types.ObjectId) {
@@ -56,7 +58,10 @@ export default class MessageRepository {
     return messages;
   }
 
-  async readAllMessages(chatId: Types.ObjectId, userId: Types.ObjectId) {
+  async readAllMessages(
+    chatId: Types.ObjectId,
+    userId: Types.ObjectId
+  ): Promise<UpdateWriteOpResult> {
     return await MessageModel.updateMany(
       { chat: chatId, sender: { $ne: userId } },
       { isRead: true }

@@ -1,21 +1,18 @@
 import { ErrorMessage } from "../../enums/errorMessage.enum";
 import HttpStatusCode from "../../enums/httpStatus.enum";
-import UserRepository from "../../repositories/user/user.repository";
 import bcryptjs from "bcryptjs";
 import { TokenGenerator } from "../../util/tokenGenerator.util";
 import ApiResponse from "../../util/response.util";
-import OtpRepository from "../../repositories/otp/otp.repository";
 import { mailsendFn } from "../../util/mailSender.util";
+import { IUserRepository } from "../../interfaces/user/userRepository.interface";
+import { IOtpRepository } from "../../interfaces/otp/otpRepository.interface";
 
 export default class AuthService {
-  private _userRepository: UserRepository;
-  private _otpRepository: OtpRepository;
-  private _jwtTokenGenerator: TokenGenerator;
-  constructor() {
-    this._userRepository = new UserRepository();
-    this._otpRepository = new OtpRepository();
-    this._jwtTokenGenerator = new TokenGenerator();
-  }
+  constructor(
+    private _userRepository: IUserRepository,
+    private _otpRepository: IOtpRepository,
+    private _jwtTokenGenerator: TokenGenerator
+  ) {}
 
   async login(email: string, password: string) {
     try {

@@ -1,20 +1,17 @@
 import { Types } from "mongoose";
-import ChatRepository from "../../repositories/chat/chat.repository";
-import UserRepository from "../../repositories/user/user.repository";
 import ApiResponse from "../../util/response.util";
 import { ErrorMessage } from "../../enums/errorMessage.enum";
 import HttpStatusCode from "../../enums/httpStatus.enum";
 import { IUser } from "../../interfaces/user/user.inerface";
 import IChat from "../../interfaces/chat/chat.interface";
+import { IChatRepository } from "../../interfaces/chat/chatRepository.interface";
+import { IUserRepository } from "../../interfaces/user/userRepository.interface";
 
 export default class ChatService {
-  private _chatRepository: ChatRepository;
-  private _userRepository: UserRepository;
-
-  constructor() {
-    this._chatRepository = new ChatRepository();
-    this._userRepository = new UserRepository();
-  }
+  constructor(
+    private _chatRepository: IChatRepository,
+    private _userRepository: IUserRepository
+  ) {}
 
   async newUsers(userId: Types.ObjectId) {
     try {
@@ -28,8 +25,8 @@ export default class ChatService {
   async getAllChats(userId: Types.ObjectId) {
     try {
       const chats = await this._chatRepository.getAllChat(userId);
-      return chats.filter(
-        (chat) => chat.lastMessage.length || chat.isGroupChat
+      return chats.filter((chat) =>
+        chat.lastMessage ? chat.lastMessage?.length : 0 || chat.isGroupChat
       );
     } catch (error) {
       throw error;

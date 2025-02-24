@@ -1,18 +1,16 @@
 import { Types } from "mongoose";
-import MessageRepository from "../../repositories/messages/message.repository";
-import ChatRepository from "../../repositories/chat/chat.repository";
 import ApiResponse from "../../util/response.util";
 import { ErrorMessage } from "../../enums/errorMessage.enum";
 import HttpStatusCode from "../../enums/httpStatus.enum";
 import s3BucketFileUploader from "../../util/s3BucketUploader.util";
+import { IMessageRepository } from "../../interfaces/messages/messageRepository.interface";
+import { IChatRepository } from "../../interfaces/chat/chatRepository.interface";
 
 export default class MessageService {
-  private _messageRepository: MessageRepository;
-  private _chatRepository: ChatRepository;
-  constructor() {
-    this._messageRepository = new MessageRepository();
-    this._chatRepository = new ChatRepository();
-  }
+  constructor(
+    private _messageRepository: IMessageRepository,
+    private _chatRepository: IChatRepository
+  ) {}
 
   async addMessage(
     senderId: Types.ObjectId,
@@ -67,8 +65,18 @@ export default class MessageService {
         name,
         selectedFileType
       );
-
-      await this._chatRepository.updateLastMessage(chatId, newMessage._id);
+      if (newMessage._id)
+        await this._chatRepository.updateLastMessage(chatId, newMessage._id);
+      else
+        throw new Error(
+          JSON.stringify(
+            ApiResponse.errorResponse(
+              ErrorMessage.MESSAGE_SEND_FAILED,
+              null,
+              HttpStatusCode.BAD_REQUEST
+            )
+          )
+        );
       return {
         messages: newMessage,
         participants: isExisting.participants,

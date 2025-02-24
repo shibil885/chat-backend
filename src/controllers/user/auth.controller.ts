@@ -7,10 +7,7 @@ import { SuccessMessage } from "../../enums/successMessage.enum";
 import { IUser } from "../../interfaces/user/user.inerface";
 
 export default class AuthController {
-  private _authService: AuthService;
-  constructor() {
-    this._authService = new AuthService();
-  }
+  constructor(private _authService: AuthService) {}
 
   async login(req: Request, res: Response, next: NextFunction) {
     try {
@@ -68,7 +65,7 @@ export default class AuthController {
           email,
           password
         );
-        
+
         if (user) {
           const response = ApiResponse.successResponse<IUser>(
             SuccessMessage.OTP_SENT,

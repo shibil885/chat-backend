@@ -1,8 +1,18 @@
 import express, { NextFunction, Request, Response } from "express";
 import MessageController from "../../controllers/messages/message.controller";
 import multer from "multer";
+import MessageService from "../../services/messages/message.service";
+import { IMessageRepository } from "../../interfaces/messages/messageRepository.interface";
+import MessageRepository from "../../repositories/messages/message.repository";
+import { IChatRepository } from "../../interfaces/chat/chatRepository.interface";
+import ChatRepository from "../../repositories/chat/chat.repository";
 const router = express.Router();
-const messageController = new MessageController();
+
+const messageRepository: IMessageRepository = new MessageRepository();
+const chatRepository: IChatRepository = new ChatRepository();
+
+const messageService = new MessageService(messageRepository, chatRepository);
+const messageController = new MessageController(messageService);
 const upload = multer({ storage: multer.memoryStorage() });
 
 router.post(

@@ -10,10 +10,7 @@ import SocketService from "../../services/socket/socket.service";
 import { ChatEventEnum } from "../../enums/socketEvent.enum";
 
 export default class MessageController {
-  private _messageService: MessageService;
-  constructor() {
-    this._messageService = new MessageService();
-  }
+  constructor(private _messageService: MessageService) {}
 
   async addNewMessage(req: AuthRequest, res: Response, next: NextFunction) {
     try {

@@ -6,10 +6,7 @@ import HttpStatusCode from "../../enums/httpStatus.enum";
 import { SuccessMessage } from "../../enums/successMessage.enum";
 
 export default class OtpController {
-  private _otpService: OtpService;
-  constructor() {
-    this._otpService = new OtpService();
-  }
+  constructor(private _otpService: OtpService) {}
 
   async submit(req: Request, res: Response, next: NextFunction) {
     try {

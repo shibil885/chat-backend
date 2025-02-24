@@ -1,7 +1,8 @@
 import { Types } from "mongoose";
 import UserModel from "../../models/user.model";
+import { IUserRepository } from "../../interfaces/user/userRepository.interface";
 
-export default class UserRepository {
+export default class UserRepository implements IUserRepository {
   async registerUser(email: string, password: string, username: string) {
     const newUser = await new UserModel({
       email: email,

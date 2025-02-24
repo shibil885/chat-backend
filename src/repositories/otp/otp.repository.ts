@@ -1,7 +1,8 @@
 import { ErrorMessage } from "../../enums/errorMessage.enum";
+import { IOtpRepository } from "../../interfaces/otp/otpRepository.interface";
 import OtpModel from "../../models/otp.model";
 
-export default class OtpRepository {
+export default class OtpRepository implements IOtpRepository {
   async create(email: string) {
     try {
       const otp = Math.floor(1000 + Math.random() * 9000);

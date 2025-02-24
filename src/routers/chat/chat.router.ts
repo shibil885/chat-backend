@@ -1,9 +1,15 @@
 import express, { NextFunction, Request, Response } from "express";
 import { ChatController } from "../../controllers/chat/chat.controller";
 import ChatService from "../../services/chat/chat.service";
+import ChatRepository from "../../repositories/chat/chat.repository";
+import { IChatRepository } from "../../interfaces/chat/chatRepository.interface";
+import { IUserRepository } from "../../interfaces/user/userRepository.interface";
+import UserRepository from "../../repositories/user/user.repository";
 
 const router = express.Router();
-const chatService = new ChatService();
+const chatRepository: IChatRepository = new ChatRepository();
+const userRepository: IUserRepository = new UserRepository();
+const chatService = new ChatService(chatRepository, userRepository);
 const chatController = new ChatController(chatService);
 
 router.get("/newUsers", (req: Request, res: Response, next: NextFunction) => {
