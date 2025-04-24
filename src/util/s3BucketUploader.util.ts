@@ -47,7 +47,6 @@ export default async function s3BucketFileUploader(
     !AWS_SECRET_ACCESS_KEY ||
     !S3_BUCKET_NAME
   ) {
-    console.error("Missing AWS Configuration.");
     throw new Error(
       JSON.stringify(
         ApiResponse.errorResponse(

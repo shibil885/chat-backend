@@ -25,8 +25,9 @@ export default class ChatService {
   async getAllChats(userId: Types.ObjectId) {
     try {
       const chats = await this._chatRepository.getAllChat(userId);
-      return chats.filter((chat) =>
-        chat.lastMessage ? chat.lastMessage?.length : 0 || chat.isGroupChat
+      return chats.filter(
+        (chat) =>
+          (chat.lastMessage ? chat.lastMessage?.length : 0) || chat.isGroupChat
       );
     } catch (error) {
       throw error;

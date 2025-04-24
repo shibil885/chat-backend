@@ -7,7 +7,6 @@ import { SuccessMessage } from "../enums/successMessage.enum";
 export default async function connectMongoDB() {
   try {
     const URL = process.env.MONGODB;
-
     if (!URL) {
       throw new Error(
         ErrorMessage.DB_URL_MISSING

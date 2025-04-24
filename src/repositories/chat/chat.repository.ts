@@ -135,6 +135,14 @@ export default class ChatRepository implements IChatRepository {
           ],
         },
       },
+      {
+        $lookup: {
+          from: "chatmessages",
+          foreignField: "_id",
+          localField: "lastMessage",
+          as: "lastMessage",
+        },
+      },
     ]);
 
     if (chat.length) {

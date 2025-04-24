@@ -33,6 +33,7 @@ export default class SocketService {
 
   static initializeSocketIO(io: Server) {
     const socketService = new SocketService();
+
     return io.on("connection", async (socket) => {
       try {
         console.log("New socket connection attempt:", socket.id);

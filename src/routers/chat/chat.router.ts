@@ -12,6 +12,7 @@ const userRepository: IUserRepository = new UserRepository();
 const chatService = new ChatService(chatRepository, userRepository);
 const chatController = new ChatController(chatService);
 
+
 router.get("/newUsers", (req: Request, res: Response, next: NextFunction) => {
   chatController.newUsers(req, res, next);
 });

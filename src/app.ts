@@ -29,7 +29,7 @@ app.use(
 );
 
 const io = new Server(httpServer, {
-  pingTimeout: 60000,
+  pingTimeout: 60000,// TODO
   cors: {
     origin: process.env.FRONTEND_URL,
     credentials: true,
