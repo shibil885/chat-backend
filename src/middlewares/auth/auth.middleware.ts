@@ -12,7 +12,7 @@ interface AuthRequest extends Request {
 const jwtTokenGenerator = new TokenGenerator();
 
 const secret = process.env.SECRET_KEY;
-
+console.log("JWT secret", secret);
 if (!secret) {
   throw new Error("JWT secrets are not defined in environment variables");
 }
