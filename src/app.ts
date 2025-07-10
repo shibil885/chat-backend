@@ -1,5 +1,6 @@
-import express from "express";
 import dotenv from "dotenv";
+dotenv.config();
+import express from "express";
 import connectMongoDB from "./config/db.config";
 import authRouter from "./routers/auth/auth.router";
 import otpRouter from "./routers/otp/otp.router";
@@ -13,7 +14,6 @@ import { createServer } from "http";
 import { Server } from "socket.io";
 import SocketService from "./services/socket/socket.service";
 
-dotenv.config();
 const app = express();
 const httpServer = createServer(app);
 const port = process.env.PORT || 3000;
@@ -29,7 +29,7 @@ app.use(
 );
 
 const io = new Server(httpServer, {
-  pingTimeout: 60000,// TODO
+  pingTimeout: 60000, // TODO
   cors: {
     origin: process.env.FRONTEND_URL,
     credentials: true,
