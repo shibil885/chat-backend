@@ -1,5 +1,7 @@
+import path from 'path';
 import dotenv from "dotenv";
-dotenv.config();
+dotenv.config({ path: path.resolve(__dirname, '../.env') });
+
 import express from "express";
 import connectMongoDB from "./config/db.config";
 import authRouter from "./routers/auth/auth.router";
